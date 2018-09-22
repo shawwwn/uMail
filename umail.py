@@ -24,9 +24,9 @@ class SMTP:
 			resp.append(sock.readline().strip().decode())
 		return int(code), resp
 
-	def __init__(self, host, port, ssl=False, email=None, password=None):
+	def __init__(self, host, port, ssl=False, username=None, password=None):
 		import ussl
-		self.email = email
+		self.username = username
 		addr = usocket.getaddrinfo(host, port)[0][-1]
 		sock = usocket.socket(usocket.AF_INET, usocket.SOCK_STREAM)
 		sock.settimeout(DEFAULT_TIMEOUT)
@@ -45,11 +45,11 @@ class SMTP:
 			assert code==220, 'start tls failed, %d' % code
 			self._sock = ussl.wrap_socket(sock)
 
-		if email and password:
-			self.login(email, password)
+		if username and password:
+			self.login(username, password)
 
-	def login(self, email, password):
-		self.email = email
+	def login(self, username, password):
+		self.username = username
 		code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
 		assert code==250, '%d' % code
 
@@ -61,11 +61,11 @@ class SMTP:
 
 		from ubinascii import b2a_base64 as b64
 		if AUTH_PLAIN in auths:
-			cren = b64("\0%s\0%s" % (email, password))[:-1].decode()
+			cren = b64("\0%s\0%s" % (username, password))[:-1].decode()
 			code, resp = self.cmd('%s %s %s' % (CMD_AUTH, AUTH_PLAIN, cren))
 		elif AUTH_LOGIN in auths:
-			code, resp = self.cmd("%s %s %s" % (CMD_AUTH, AUTH_LOGIN, b64(email)[:-1].decode()))
-			assert code==334, 'wrong email %d' % code
+			code, resp = self.cmd("%s %s %s" % (CMD_AUTH, AUTH_LOGIN, b64(username)[:-1].decode()))
+			assert code==334, 'wrong username %d' % code
 			code, resp = self.cmd(b64(password)[:-1])
 		else:
 			raise Exception("auth(%s) not supported " % ', '.join(auths))
@@ -76,7 +76,7 @@ class SMTP:
 	def to(self, addrs):
 		code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
 		assert code==250, '%d' % code
-		code, resp = self.cmd('MAIL FROM: <%s>' % self.email)
+		code, resp = self.cmd('MAIL FROM: <%s>' % self.username)
 		assert code==250, 'sender refused %d' % code
 
 		if isinstance(addrs, str):

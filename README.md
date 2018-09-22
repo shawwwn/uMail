@@ -8,7 +8,7 @@ A bare minimal approach
 
 ```py
 import umail
-smtp = umail.SMTP('smtp.gmail.com', 587, email='my@gmail.com', password='mypassword')
+smtp = umail.SMTP('smtp.gmail.com', 587, username='my@gmail.com', password='mypassword')
 smtp.to('someones@gmail.com')
 smtp.send("This is an example.")
 smtp.quit()
@@ -17,14 +17,14 @@ smtp.quit()
 
 ## API docs:
 
-* **`umail.SMTP(host, port, [ssl, email, password])`**
+* **`umail.SMTP(host, port, [ssl, username, password])`**
   * **host** - smtp server
   * **port** - server's port number
   * **ssl** - set `True` when SSL is required by the server
-  * **email** - my email/username to the server
+  * **username** - my username/email to the server
   * **password** - my password
 
-* **`SMTP.login(email, password)`**
+* **`SMTP.login(username, password)`**
   If you did not login when intializing the server, do it here!
 
 * **`SMTP.to(addrs)`**
