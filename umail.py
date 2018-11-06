@@ -56,7 +56,7 @@ class SMTP:
         auths = None
         for feature in resp:
             if feature[:4].upper() == CMD_AUTH:
-                auths = feature[4:].upper().split()
+                auths = feature[4:].strip('=').upper().split()
         assert auths!=None, "no auth method"
 
         from ubinascii import b2a_base64 as b64
