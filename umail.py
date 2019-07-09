@@ -1,4 +1,4 @@
-# µMail (MicroMail) for MicroPython
+# uMail (MicroMail) for MicroPython
 # Copyright (c) 2018 Shawwwn <shawwwn1@gmai.com>
 # License: MIT
 import usocket
@@ -35,14 +35,14 @@ class SMTP:
             sock = ussl.wrap_socket(sock)
         code = int(sock.read(3))
         sock.readline()
-        assert code==220, 'cant connect to server %d' % code
+        assert code==220, 'cant connect to server %d, %s' % (code, resp)
         self._sock = sock
 
         code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
         assert code==250, '%d' % code
         if CMD_STARTTLS in resp:
             code, resp = self.cmd(CMD_STARTTLS)
-            assert code==220, 'start tls failed, %d' % code
+            assert code==220, 'start tls failed %d, %s' % (code, resp)
             self._sock = ussl.wrap_socket(sock)
 
         if username and password:
@@ -51,7 +51,7 @@ class SMTP:
     def login(self, username, password):
         self.username = username
         code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
-        assert code==250, '%d' % code
+        assert code==250, '%d, %s' % (code, resp)
 
         auths = None
         for feature in resp:
@@ -65,19 +65,20 @@ class SMTP:
             code, resp = self.cmd('%s %s %s' % (CMD_AUTH, AUTH_PLAIN, cren))
         elif AUTH_LOGIN in auths:
             code, resp = self.cmd("%s %s %s" % (CMD_AUTH, AUTH_LOGIN, b64(username)[:-1].decode()))
-            assert code==334, 'wrong username %d' % code
+            assert code==334, 'wrong username %d, %s' % (code, resp)
             code, resp = self.cmd(b64(password)[:-1])
         else:
             raise Exception("auth(%s) not supported " % ', '.join(auths))
 
-        assert code==235 or code==503, 'auth error %d' % code
+        assert code==235 or code==503, 'auth error %d, %s' % (code, resp)
         return code, resp
 
-    def to(self, addrs):
+    def to(self, addrs, mail_from=None):
+        mail_from = self.username if mail_from==None else mail_from
         code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
         assert code==250, '%d' % code
-        code, resp = self.cmd('MAIL FROM: <%s>' % self.username)
-        assert code==250, 'sender refused %d' % code
+        code, resp = self.cmd('MAIL FROM: <%s>' % mail_from)
+        assert code==250, 'sender refused %d, %s' % (code, resp)
 
         if isinstance(addrs, str):
             addrs = [addrs]
@@ -85,12 +86,12 @@ class SMTP:
         for addr in addrs:
             code, resp = self.cmd('RCPT TO: <%s>' % addr)
             if code!=250 and code!=251:
-                print('%s refused' % addr)
+                print('%s refused, %s' % (addr, resp))
                 count += 1
-        assert count!=len(addrs), 'recipient refused, %d' % code
+        assert count!=len(addrs), 'recipient refused, %d, %s' % (code, resp)
 
         code, resp = self.cmd('DATA')
-        assert code==354, 'data refused, %d' % code
+        assert code==354, 'data refused, %d, %s' % (code, resp)
         return code, resp
 
     def write(self, content):
