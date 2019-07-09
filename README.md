@@ -27,8 +27,9 @@ smtp.quit()
 * **`SMTP.login(username, password)`**
   If you did not login when intializing the server, do it here!
 
-* **`SMTP.to(addrs)`**
+* **`SMTP.to(addrs, mail_from)`**
   * **addrs** - Recipient's email address. If multiple recipents, use a list, eg. `['aaa@mail.com', 'bbb@mail.com']`
+  * **mail_from** - manually specify the MAIL FROM address, default value is your smtp username. [example](examples/example_mail_from.py)
 
 * **`SMTP.write(content)`**
   To send a long email or an email that contains large attachments, you will most likely exceed the memory limit of your MCU.\
