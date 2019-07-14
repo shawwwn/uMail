@@ -66,7 +66,7 @@ class SMTP:
         elif AUTH_LOGIN in auths:
             code, resp = self.cmd("%s %s %s" % (CMD_AUTH, AUTH_LOGIN, b64(username)[:-1].decode()))
             assert code==334, 'wrong username %d, %s' % (code, resp)
-            code, resp = self.cmd(b64(password)[:-1])
+            code, resp = self.cmd(b64(password)[:-1].decode())
         else:
             raise Exception("auth(%s) not supported " % ', '.join(auths))
 
