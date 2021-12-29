@@ -40,7 +40,7 @@ class SMTP:
 
         code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
         assert code==250, '%d' % code
-        if CMD_STARTTLS in resp:
+        if not ssl and CMD_STARTTLS in resp:
             code, resp = self.cmd(CMD_STARTTLS)
             assert code==220, 'start tls failed %d, %s' % (code, resp)
             self._sock = ussl.wrap_socket(sock)
