@@ -45,14 +45,13 @@ class SMTP:
             assert code==220, 'start tls failed %d, %s' % (code, resp)
             self._sock = ussl.wrap_socket(sock)
 
-            code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
-            assert code==250, '%d, %s' % (code, resp)
-
         if username and password:
             self.login(username, password)
 
     def login(self, username, password):
         self.username = username
+        code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
+        assert code==250, '%d, %s' % (code, resp)
 
         auths = None
         for feature in resp:
@@ -76,6 +75,8 @@ class SMTP:
 
     def to(self, addrs, mail_from=None):
         mail_from = self.username if mail_from==None else mail_from
+        code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
+        assert code==250, '%d' % code
         code, resp = self.cmd('MAIL FROM: <%s>' % mail_from)
         assert code==250, 'sender refused %d, %s' % (code, resp)
 
