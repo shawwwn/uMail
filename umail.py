@@ -75,8 +75,6 @@ class SMTP:
 
     def to(self, addrs, mail_from=None):
         mail_from = self.username if mail_from==None else mail_from
-        code, resp = self.cmd(CMD_EHLO + ' ' + LOCAL_DOMAIN)
-        assert code==250, '%d' % code
         code, resp = self.cmd('MAIL FROM: <%s>' % mail_from)
         assert code==250, 'sender refused %d, %s' % (code, resp)
 
