@@ -1,5 +1,5 @@
 # uMail (MicroMail) for MicroPython
-# Copyright (c) 2018 Shawwwn <shawwwn1@gmai.com>
+# Copyright (c) 2018 Shawwwn <shawwwn1@gmail.com>
 # License: MIT
 import usocket
 
