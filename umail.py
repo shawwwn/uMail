@@ -1,7 +1,7 @@
 # uMail (MicroMail) for MicroPython
 # Copyright (c) 2018 Shawwwn <shawwwn1@gmail.com>
 # License: MIT
-import usocket
+import socket
 
 DEFAULT_TIMEOUT = 10 # sec
 LOCAL_DOMAIN = '127.0.0.1'
@@ -27,8 +27,8 @@ class SMTP:
     def __init__(self, host, port, ssl=False, username=None, password=None):
         import ssl
         self.username = username
-        addr = usocket.getaddrinfo(host, port)[0][-1]
-        sock = usocket.socket(usocket.AF_INET, usocket.SOCK_STREAM)
+        addr = socket.getaddrinfo(host, port)[0][-1]
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(DEFAULT_TIMEOUT)
         sock.connect(addr)
         if ssl:
