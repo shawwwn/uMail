@@ -2,6 +2,7 @@
 # Copyright (c) 2018 Shawwwn <shawwwn1@gmail.com>
 # License: MIT
 import socket
+from ssl import wrap_socket as ssl_wrap_socket
 
 DEFAULT_TIMEOUT = 10 # sec
 LOCAL_DOMAIN = '127.0.0.1'
@@ -25,14 +26,13 @@ class SMTP:
         return int(code), resp
 
     def __init__(self, host, port, ssl=False, username=None, password=None):
-        import ssl
         self.username = username
         addr = socket.getaddrinfo(host, port)[0][-1]
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(DEFAULT_TIMEOUT)
         sock.connect(addr)
         if ssl:
-            sock = ssl.wrap_socket(sock)
+            sock = ssl_wrap_socket(sock)
         code = int(sock.read(3))
         sock.readline()
         assert code==220, 'cant connect to server %d, %s' % (code, resp)
@@ -43,7 +43,7 @@ class SMTP:
         if not ssl and CMD_STARTTLS in resp:
             code, resp = self.cmd(CMD_STARTTLS)
             assert code==220, 'start tls failed %d, %s' % (code, resp)
-            self._sock = ssl.wrap_socket(sock)
+            self._sock = ssl_wrap_socket(sock)
 
         if username and password:
             self.login(username, password)
